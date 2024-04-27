@@ -1,17 +1,21 @@
 package com.auth1.auth.learning.service;
 
+import com.auth1.auth.learning.dtos.SendEmailDTO;
 import com.auth1.auth.learning.model.Token;
 import com.auth1.auth.learning.model.User;
 import com.auth1.auth.learning.repository.TokenRepository;
 import com.auth1.auth.learning.repository.UserRepository;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.support.SendResult;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 @Service
 public class UserService {
@@ -25,14 +29,44 @@ public class UserService {
     @Autowired
     private BCryptPasswordEncoder bCryptPasswordEncoder;
 
+    @Autowired
+    private KafkaTemplate<String,String> kafkaTemplate;
 
-    public User signUp(String email, String password, String name){
+
+    public User signUp(String email, String password, String name) throws JsonProcessingException, ExecutionException, InterruptedException {
 
         User user = new User();
         user.setEmail(email);
         user.setName(name);
         user.setPassword(bCryptPasswordEncoder.encode(password));
-        return userRepository.save(user);
+        User user1 = userRepository.save(user);
+
+        SendEmailDTO sendEmailDTO = new SendEmailDTO();
+        sendEmailDTO.setTo("bhatianishant763@gmail.com");
+        sendEmailDTO.setFrom("scalartestemailtest@gmail.com");
+        sendEmailDTO.setBody("Hi! Welcome to Auth Service!");
+        sendEmailDTO.setSubject("Onboarding!!!");
+
+        ObjectMapper mapper = new ObjectMapper();
+
+//        for(int i=0;i<1000;i++) {
+
+            CompletableFuture<SendResult<String, String>> sendResultCompletableFuture = kafkaTemplate.send("sendEmail", mapper.writeValueAsString(sendEmailDTO) );
+
+//            kafkaTemplate.send("sendEmail")
+//            sendResultCompletableFuture.whenComplete((result, ex) -> {
+//                if (ex == null) {
+//                    System.out.println("Sent Message : " + result.getRecordMetadata().offset());
+//                } else {
+//                    System.out.println("Unable to send message : " + ex.getMessage());
+//                }
+//            });
+            System.out.println(sendResultCompletableFuture.get().getRecordMetadata().offset());
+
+//        }
+
+
+        return user1;
     }
 
     public Token login(String email, String password) {
@@ -97,6 +131,7 @@ public class UserService {
           2. Check if token is not deleted
           3. Check if token is not expired
          */
+//        SortedSet<>
 
         Optional<Token> tokenOptional = tokenRepository.findByValueAndDeletedEqualsAndExpireAtGreaterThan(
                 token, false, new Date()
@@ -106,5 +141,9 @@ public class UserService {
             return false;
         }
         return true;
+    }
+
+    public Optional<User> findByEmail(String email){
+        return userRepository.findByEmail(email);
     }
 }

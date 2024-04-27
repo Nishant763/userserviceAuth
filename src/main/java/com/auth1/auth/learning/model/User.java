@@ -10,7 +10,7 @@ import lombok.Setter;
 import java.util.ArrayList;
 import java.util.List;
 
-@Entity
+@Entity(name = "MyUser")
 @Getter
 @Setter
 public class User extends BaseModel{

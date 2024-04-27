@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>com.auth1</groupId>
 	<artifactId>auth-learning</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>1.0-Beta</version>
 	<name>auth-learning</name>
 	<description>Demo project for Spring Boot</description>
 	<properties>
@@ -42,6 +42,11 @@
 			<scope>runtime</scope>
 		</dependency>
 		<dependency>
+			<groupId>org.postgresql</groupId>
+			<artifactId>postgresql</artifactId>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-configuration-processor</artifactId>
 			<optional>true</optional>
@@ -60,6 +65,20 @@
 			<groupId>org.springframework.security</groupId>
 			<artifactId>spring-security-test</artifactId>
 			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.kafka</groupId>
+			<artifactId>spring-kafka</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
+<!--			<version>2.5.3</version>-->
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+			<version>4.1.1</version>
 		</dependency>
 	</dependencies>
 
